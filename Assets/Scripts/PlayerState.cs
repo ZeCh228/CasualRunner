@@ -5,5 +5,6 @@
     Casual,    
     Middle,     
     Buisiness,      
-    Bling
+    Bling,
+    EndLevel
 }

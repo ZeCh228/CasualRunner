@@ -4,24 +4,32 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private int _initialWealth = 40;               
-    [SerializeField] private GameObject _poorModel;                 
-    [SerializeField] private GameObject _casualModel;             
-    [SerializeField] private GameObject _middleModel;             
-    [SerializeField] private GameObject _buisinessModel;          
-    [SerializeField] private GameObject _blingModel;             
-    [SerializeField] private SplineFollower _splineFollow;             
-    [SerializeField] private SwipeMovement _swipeMovement;             
+    private readonly int WEALTH_ANIMATION_ID = Animator.StringToHash("Wealth");
+    private readonly int DANCE_ANIMATION_ID = Animator.StringToHash("Dance");
 
-    [SerializeField] private int _wealth;                          
-    private PlayerState _currentState;            
+    [SerializeField] private int _initialWealth = 40;
+    [SerializeField] private GameObject _poorModel;
+    [SerializeField] private GameObject _casualModel;
+    [SerializeField] private GameObject _middleModel;
+    [SerializeField] private GameObject _buisinessModel;
+    [SerializeField] private GameObject _blingModel;
+    [SerializeField] private SplineFollower _splineFollow;
+    [SerializeField] private SwipeMovement _swipeMovement;
+    [SerializeField] private Animator _playerAnimator;
+
+
+    [SerializeField] private int _wealth;
+    private PlayerState _currentState;
 
 
     private void Start()
     {
-        _wealth = _initialWealth;                 
-        _currentState = PlayerState.Casual;      
-        SetState(_currentState);                  
+        _wealth = _initialWealth;
+        _currentState = PlayerState.Casual;
+        SetState(_currentState);
+
+        _playerAnimator.SetFloat(WEALTH_ANIMATION_ID, _wealth);
+
     }
 
 
@@ -34,7 +42,7 @@ public class Player : MonoBehaviour
 
     private void UpdateState()
     {
-        if(_wealth <= 0 && _currentState != PlayerState.Death) 
+        if (_wealth <= 0 && _currentState != PlayerState.Death)
         {
             SetState(PlayerState.Death);
         }
@@ -58,10 +66,12 @@ public class Player : MonoBehaviour
         {
             SetState(PlayerState.Bling);
         }
+
+        _playerAnimator.SetFloat(WEALTH_ANIMATION_ID, _wealth);
     }
 
 
-    private void SetState(PlayerState newState)
+    public void SetState(PlayerState newState)
     {
         _currentState = newState;
 
@@ -78,20 +88,32 @@ public class Player : MonoBehaviour
                 _splineFollow.enabled = false;
                 _swipeMovement.enabled = false;
                 break;
+
             case PlayerState.Poor:
                 _poorModel.SetActive(true);
                 break;
+
             case PlayerState.Casual:
                 _casualModel.SetActive(true);
                 break;
+
             case PlayerState.Middle:
                 _middleModel.SetActive(true);
                 break;
+
             case PlayerState.Buisiness:
                 _buisinessModel.SetActive(true);
                 break;
+
             case PlayerState.Bling:
                 _blingModel.SetActive(true);
+                break;
+
+            case PlayerState.EndLevel:
+                _splineFollow.enabled = false;
+                _swipeMovement.enabled = false;
+                _blingModel.SetActive(true);
+                _playerAnimator.SetTrigger(DANCE_ANIMATION_ID);
                 break;
         }
     }

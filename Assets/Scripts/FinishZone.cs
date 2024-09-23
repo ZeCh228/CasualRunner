@@ -22,6 +22,6 @@ public class FinishZone : MonoBehaviour
 
     private void FinishGame()
     {
-        Time.timeScale = 0f;
+        _player.GetComponent<Player>().SetState(PlayerState.EndLevel);
     }
 }
