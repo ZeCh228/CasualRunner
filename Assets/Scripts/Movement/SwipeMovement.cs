@@ -1,42 +1,43 @@
 using UnityEngine;
 using Dreamteck.Splines;
 using DG.Tweening;
-using System.Collections;
+
 
 public class SwipeMovement : MonoBehaviour
 {
-    [SerializeField] private SplineFollower follower;
-    [SerializeField] private float sensitivity = 0.01f;
-    [SerializeField] private float maxOffsetX = 3f;
-    [SerializeField] private float minOffsetX = -3f;
-    [SerializeField] private float deathZone;
-    [SerializeField] private Transform Player;
-    private Vector2 startTouchPosition;
-    private Vector2 currentTouchPosition;
-    private Vector2 previousTouchPosition;
-    private bool isTouching;
 
-        
-    [SerializeField] private float maxYAngle;
-    [SerializeField] private float RotationDuration;
-    [SerializeField] private float restoreRotationOffset;
-  
-    
+    [SerializeField] private float _maxYAngle;
+    [SerializeField] private float _rotationDuration;
+    [SerializeField] private float _restoreRotationOffset;
+    [SerializeField] private SplineFollower _follower;
+    [SerializeField] private float _sensitivity = 0.01f;
+    [SerializeField] private float _maxOffsetX = 3f;
+    [SerializeField] private float _minOffsetX = -3f;
+    [SerializeField] private float _deathZone;
+    [SerializeField] private Transform _player;
+
+    private Vector2 _startTouchPosition;
+    private Vector2 _currentTouchPosition;
+    private Vector2 _previousTouchPosition;
+    private bool _isTouching;
+
+
+
+
+
     private bool previousDirectionIsLeft = false;
     private Tween rotation;
+
+  
+
+
     private void Start()
     {
-        if (follower == null)
+        if (_follower == null)
         {
-            follower = GetComponent<SplineFollower>();
+            _follower = GetComponent<SplineFollower>();
         }
     }
-
-
-
-
-
-    private Coroutine rotationCoroutine;
 
     private void Update()
     {
@@ -44,129 +45,43 @@ public class SwipeMovement : MonoBehaviour
         {
             Touch touch = Input.GetTouch(0);
 
-            if (touch.phase == TouchPhase.Began)
+            if (touch.phase == TouchPhase.Moved)
             {
-                previousTouchPosition = touch.position;
-            }
-            else if (touch.phase == TouchPhase.Moved)
-            {
-                Vector3 swipeVector = touch.position - previousTouchPosition;
-                previousTouchPosition = touch.position;
+                Vector3 swipeVector = touch.position - _previousTouchPosition;
+                _previousTouchPosition = touch.position;
                 swipeVector.Normalize();
+                _follower.motion.offset = new Vector2(Mathf.Clamp(_follower.motion.offset.x + swipeVector.x * (_sensitivity * Time.deltaTime), _minOffsetX, _maxOffsetX), _follower.motion.offset.y);
 
-                // Обновляем offset по оси X
-                follower.motion.offset = new Vector2(
-                    Mathf.Clamp(follower.motion.offset.x + swipeVector.x * (sensitivity * Time.deltaTime), minOffsetX, maxOffsetX),
-                    follower.motion.offset.y
-                );
-
-                // Поворот влево или вправо
                 if (swipeVector.x < 0)
                 {
-                    StartRotation(-maxYAngle); // Поворот влево
+                    rotation?.Kill();
+                    // follower.motion.rotationOffset = new Vector3(0, Mathf.Clamp(follower.motion.rotationOffset.y + -rotationSensivity*Time.deltaTime, -maxYAngle, maxYAngle), 0);
+
+                    rotation = _player.DOLocalRotate(new Vector3(0, -_maxYAngle, 0), _rotationDuration).OnComplete(RestoreRotation);
                 }
                 else if (swipeVector.x > 0)
                 {
-                    StartRotation(maxYAngle); // Поворот вправо
+                    rotation?.Kill();
+
+                    //follower.motion.rotationOffset = new Vector3(0, Mathf.Clamp(follower.motion.rotationOffset.y + RotationDuration * Time.deltaTime, -maxYAngle, maxYAngle), 0);
+                    rotation = _player.DOLocalRotate(new Vector3(0, _maxYAngle, 0), _rotationDuration)
+                        .OnComplete(RestoreRotation);
                 }
 
-                previousDirectionIsLeft = swipeVector.x < 0;
+                previousDirectionIsLeft = swipeVector.x < 0 ? true : false;
             }
             else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
             {
-                RestoreRotation(); // Возвращаем в исходное положение
+                rotation?.Kill();
+                RestoreRotation();
             }
         }
-    }
 
-    // Метод для начала плавного поворота
-    private void StartRotation(float targetAngle)
-    {
-        // Если есть активная корутина поворота, останавливаем её
-        if (rotationCoroutine != null)
+
+        void RestoreRotation()
         {
-            StopCoroutine(rotationCoroutine);
+            rotation = _player.DOLocalRotate(new Vector3(0, 0, 0), _rotationDuration);
         }
-
-        // Запускаем новую корутину для поворота
-        rotationCoroutine = StartCoroutine(RotateToAngle(targetAngle));
     }
-
-    // Корутина для плавного поворота к указанному углу
-    private IEnumerator RotateToAngle(float targetAngle)
-    {
-        float currentAngle = Player.localEulerAngles.y;
-        float timeElapsed = 0f;
-
-        while (timeElapsed < RotationDuration)
-        {
-            timeElapsed += Time.deltaTime;
-            float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, timeElapsed / RotationDuration);
-            Player.localEulerAngles = new Vector3(0, newAngle, 0);
-            yield return null;
-        }
-
-        Player.localEulerAngles = new Vector3(0, targetAngle, 0); // Устанавливаем конечный угол точно
-    }
-
-    // Метод для восстановления вращения в исходное положение (0)
-    private void RestoreRotation()
-    {
-        StartRotation(0); // Возвращаемся в исходное положение
-    }
-
-
-
-
-
-
-
-
-
-
-
-    /* private void Update()
-     {
-         if (Input.touchCount > 0)
-         {
-             Touch touch = Input.GetTouch(0);
-
-             if (touch.phase == TouchPhase.Moved)
-             {
-                 Vector3 swipeVector = touch.position - previousTouchPosition;
-                 previousTouchPosition = touch.position;
-                 swipeVector.Normalize();
-                 follower.motion.offset = new Vector2(Mathf.Clamp(follower.motion.offset.x + swipeVector.x * (sensitivity * Time.deltaTime), minOffsetX, maxOffsetX), follower.motion.offset.y);
-
-                 if (swipeVector.x < 0)
-                 {
-                     rotation?.Kill();
-                     // follower.motion.rotationOffset = new Vector3(0, Mathf.Clamp(follower.motion.rotationOffset.y + -rotationSensivity*Time.deltaTime, -maxYAngle, maxYAngle), 0);
-
-                     rotation = Player.DOLocalRotate(new Vector3(0, -maxYAngle, 0), RotationDuration).OnComplete(RestoreRotation);
-                 }
-                 else if (swipeVector.x > 0)
-                 {
-                     rotation?.Kill();
-
-                     //follower.motion.rotationOffset = new Vector3(0, Mathf.Clamp(follower.motion.rotationOffset.y + RotationDuration * Time.deltaTime, -maxYAngle, maxYAngle), 0);
-                     rotation = Player.DOLocalRotate(new Vector3(0, maxYAngle, 0), RotationDuration)
-                         .OnComplete(RestoreRotation);
-                 }
-
-                 previousDirectionIsLeft = swipeVector.x < 0 ? true : false;
-             }
-             else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-             {
-                 rotation?.Kill();
-                 RestoreRotation();
-             }
-         }
-
-
-         void RestoreRotation()
-         {
-             rotation = Player.DOLocalRotate(new Vector3(0, 0, 0), RotationDuration);
-         }
-     }*/
 }
+//Я чё, правда пишу развороты с помощью дотвина.....

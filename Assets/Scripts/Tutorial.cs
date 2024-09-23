@@ -6,7 +6,7 @@ public class Tutorial : MonoBehaviour
 {
     [SerializeField] RectTransform _finger;
     [SerializeField] RectTransform _arrow;
-    [SerializeField] float duration;
+    [SerializeField] float _duration;
 
 
     void Start()
@@ -25,12 +25,13 @@ public class Tutorial : MonoBehaviour
         
         
 
-        _finger.DOAnchorPos(new Vector2(leftPoint.x, _finger.anchoredPosition.y), duration*2).OnComplete(() =>
+        _finger.DOAnchorPos(new Vector2(leftPoint.x, _finger.anchoredPosition.y), _duration*2).OnComplete(() =>
         {
             Sequence seq = DOTween.Sequence();
-            seq.Append(_finger.DOAnchorPos(new Vector2(rightPoint.x, _finger.anchoredPosition.y), duration)).SetEase(Ease.Linear);
-            seq.Append(_finger.DOAnchorPos(new Vector2(leftPoint.x, _finger.anchoredPosition.y), duration)).SetEase(Ease.Linear);
+            seq.Append(_finger.DOAnchorPos(new Vector2(rightPoint.x, _finger.anchoredPosition.y), _duration)).SetEase(Ease.Linear);
+            seq.Append(_finger.DOAnchorPos(new Vector2(leftPoint.x, _finger.anchoredPosition.y), _duration)).SetEase(Ease.Linear);
             seq.SetLoops(-1, LoopType.Yoyo);
         });
     }
 }
+ 

@@ -1,5 +1,6 @@
 ﻿public enum PlayerState
 {
+    Idle,
     Death,
     Poor,      
     Casual,    

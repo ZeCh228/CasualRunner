@@ -42,7 +42,7 @@ public class Player : MonoBehaviour
 
     public void ModifyWealth(int amount)
     {
-        _wealth += amount; 
+        _wealth += amount;
         UpdateState();
         OnWealthChanged?.Invoke(_wealth);
     }
@@ -92,7 +92,6 @@ public class Player : MonoBehaviour
         switch (CurrentState)
         {
             case PlayerState.Death:
-                Debug.Log("УМЕР!");
                 _splineFollow.enabled = false;
                 _swipeMovement.enabled = false;
                 _OnLose?.Invoke();

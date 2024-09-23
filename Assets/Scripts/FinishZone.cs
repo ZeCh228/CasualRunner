@@ -6,12 +6,13 @@ public class FinishZone : MonoBehaviour
 {  
     [SerializeField] private GameObject _player;
     [SerializeField] private UnityEvent _OnVictory;
+    [SerializeField] private GameObject _VictoryUI;
+
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-
             FinishGame();
         }
     }
@@ -21,5 +22,6 @@ public class FinishZone : MonoBehaviour
     {
         _player.GetComponent<Player>().SetState(PlayerState.EndLevel);
         _OnVictory?.Invoke();
+        _VictoryUI.SetActive(true);
     }
 }

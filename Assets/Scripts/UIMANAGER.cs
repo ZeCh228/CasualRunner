@@ -17,7 +17,7 @@ public class UIMANAGER : MonoBehaviour
 
     public void UpdateWealthUI(int wealth)
     {
-        _wealthText.text = wealth.ToString();
+        _wealthText.text = Mathf.Max(wealth, 0).ToString();
     }
 
 
