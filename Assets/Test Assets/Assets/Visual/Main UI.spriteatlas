@@ -62,7 +62,8 @@ SpriteAtlas:
     - a010e1aaed611394d9e149c63654e4a3: 21300000
     - 03bb47ab772700249800c109c644ab69: 21300000
     - 4cf20cfd7a4dd9c4cb09ff09e97a34cc: 21300000
-  m_MasterAtlas: {fileID: 0}
+  m_MasterAtlas: {fileID: 4343727234628468602, guid: d817d77a773ea1142b4d046c1195cda3,
+    type: 2}
   m_PackedSprites:
   - {fileID: 21300000, guid: 12abf1618a5b655459c9a1c476277dc2, type: 2}
   - {fileID: 21300000, guid: 01b32fe197e39464a8d8cdedd21ab5b2, type: 3}
@@ -92,5 +93,5 @@ SpriteAtlas:
   - Upgrade
   - house
   m_RenderDataMap: {}
-  m_Tag: Main UI
-  m_IsVariant: 0
+  m_Tag: Images Run
+  m_IsVariant: 1

@@ -1,5 +1,6 @@
 ﻿using Dreamteck.Splines;
 using UnityEngine;
+using UnityEngine.Events;
 
 
 public class Player : MonoBehaviour
@@ -16,53 +17,60 @@ public class Player : MonoBehaviour
     [SerializeField] private SplineFollower _splineFollow;
     [SerializeField] private SwipeMovement _swipeMovement;
     [SerializeField] private Animator _playerAnimator;
+    [SerializeField] private UnityEvent _OnLose;
 
 
     [SerializeField] private int _wealth;
-    private PlayerState _currentState;
+
+
+    public UnityAction<int> OnWealthChanged;
+
+    public PlayerState CurrentState { get; private set; }
 
 
     private void Start()
     {
         _wealth = _initialWealth;
-        _currentState = PlayerState.Casual;
-        SetState(_currentState);
+        CurrentState = PlayerState.Casual;
+        SetState(CurrentState);
 
         _playerAnimator.SetFloat(WEALTH_ANIMATION_ID, _wealth);
 
+        OnWealthChanged?.Invoke(_wealth);
     }
 
 
     public void ModifyWealth(int amount)
     {
-        _wealth += amount;
+        _wealth += amount; 
         UpdateState();
+        OnWealthChanged?.Invoke(_wealth);
     }
 
 
     private void UpdateState()
     {
-        if (_wealth <= 0 && _currentState != PlayerState.Death)
+        if (_wealth <= 0 && CurrentState != PlayerState.Death)
         {
             SetState(PlayerState.Death);
         }
-        if (_wealth <= 15 && _currentState != PlayerState.Poor)
+        if (_wealth <= 15 && CurrentState != PlayerState.Poor)
         {
             SetState(PlayerState.Poor);
         }
-        else if (_wealth > 15 && _wealth <= 59 && _currentState != PlayerState.Casual)
+        else if (_wealth > 15 && _wealth <= 59 && CurrentState != PlayerState.Casual)
         {
             SetState(PlayerState.Casual);
         }
-        else if (_wealth >= 60 && _wealth <= 99 && _currentState != PlayerState.Middle)
+        else if (_wealth >= 60 && _wealth <= 99 && CurrentState != PlayerState.Middle)
         {
             SetState(PlayerState.Middle);
         }
-        else if (_wealth >= 100 && _wealth <= 139 && _currentState != PlayerState.Buisiness)
+        else if (_wealth >= 100 && _wealth <= 139 && CurrentState != PlayerState.Buisiness)
         {
             SetState(PlayerState.Buisiness);
         }
-        else if (_wealth >= 140 && _currentState != PlayerState.Bling)
+        else if (_wealth >= 140 && CurrentState != PlayerState.Bling)
         {
             SetState(PlayerState.Bling);
         }
@@ -73,7 +81,7 @@ public class Player : MonoBehaviour
 
     public void SetState(PlayerState newState)
     {
-        _currentState = newState;
+        CurrentState = newState;
 
         _poorModel.SetActive(false);
         _casualModel.SetActive(false);
@@ -81,12 +89,13 @@ public class Player : MonoBehaviour
         _buisinessModel.SetActive(false);
         _blingModel.SetActive(false);
 
-        switch (_currentState)
+        switch (CurrentState)
         {
             case PlayerState.Death:
                 Debug.Log("УМЕР!");
                 _splineFollow.enabled = false;
                 _swipeMovement.enabled = false;
+                _OnLose?.Invoke();
                 break;
 
             case PlayerState.Poor:

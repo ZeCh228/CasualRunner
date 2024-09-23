@@ -23,6 +23,6 @@ public abstract class Collectible : MonoBehaviour, ICollectible
 
     protected virtual void PlayParticles()
     {
-        // логика партиклов
+        // тут будут должны были быть партиклы
     }
 }

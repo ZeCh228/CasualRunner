@@ -8,8 +8,8 @@ namespace ButchersGames
 
 #if UNITY_EDITOR
     private void OnDrawGizmos()
-    {
-        if (playerSpawnPoint != null)
+    { 
+        if (playerSpawnPoint != null)   
         {
             Gizmos.color = Color.magenta;
             var m = Gizmos.matrix;

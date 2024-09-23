@@ -11,6 +11,6 @@ public class Money : Collectible
 
     protected override void PlayParticles()
     {
-        // Логика для отображения партиклов
+        // тут будут должны были быть партиклы
     }
 }
