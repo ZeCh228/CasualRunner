@@ -1,23 +1,15 @@
 ﻿using UnityEngine;
 
-public abstract class Collectible : MonoBehaviour, ICollectible
+public abstract class Collectible : MonoBehaviour
 {
-    [SerializeField] public string name;
     [SerializeField] public int value;
 
  
     public abstract void ApplyEffect(Player player);
 
-
-    protected virtual void Update()
+    public virtual void OnCollect() 
     {
-        RotateObject();
-    }
-
- 
-    private void RotateObject()
-    {
-        transform.Rotate(Vector3.up * 50 * Time.deltaTime);
+        Destroy(gameObject);
     }
 
 

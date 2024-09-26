@@ -1,18 +1,20 @@
 ﻿using UnityEngine;
 
-
-public class Money : Collectible
+public class Doorway : Collectible
 {
     public override void ApplyEffect(Player player)
     {
         player.ModifyWealth(value);
         PlayParticles();
     }
+      
 
-    private void RotateObject()
+    public override void OnCollect()
     {
-        transform.Rotate(Vector3.up * 50 * Time.deltaTime);
+      Destroy(this.transform.parent.gameObject);
     }
+
+
     protected override void PlayParticles()
     {
         // тут будут должны были быть партиклы

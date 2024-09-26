@@ -5,77 +5,73 @@ using UnityEngine.Events;
 
 public class Player : MonoBehaviour
 {
+    public int MaxWealth { get; } = 140; //TODO:rename
     private readonly int WEALTH_ANIMATION_ID = Animator.StringToHash("Wealth");
     private readonly int DANCE_ANIMATION_ID = Animator.StringToHash("Dance");
+    private readonly int StartWalk_ANIMATION_ID = Animator.StringToHash("StartWalk");
 
-    [SerializeField] private int _initialWealth = 40;
     [SerializeField] private GameObject _poorModel;
     [SerializeField] private GameObject _casualModel;
     [SerializeField] private GameObject _middleModel;
     [SerializeField] private GameObject _buisinessModel;
     [SerializeField] private GameObject _blingModel;
+    [SerializeField] private GameObject _DeathUI;
     [SerializeField] private SplineFollower _splineFollow;
     [SerializeField] private SwipeMovement _swipeMovement;
     [SerializeField] private Animator _playerAnimator;
     [SerializeField] private UnityEvent _OnLose;
-
-
-    [SerializeField] private int _wealth;
-
-
-    public UnityAction<int> OnWealthChanged;
+    [SerializeField] private WealthChecker _wealthChecker;
 
     public PlayerState CurrentState { get; private set; }
 
 
     private void Start()
     {
-        _wealth = _initialWealth;
-        CurrentState = PlayerState.Casual;
-        SetState(CurrentState);
-
-        _playerAnimator.SetFloat(WEALTH_ANIMATION_ID, _wealth);
-
-        OnWealthChanged?.Invoke(_wealth);
+        SetState(PlayerState.Idle);
     }
 
+    public void OnFirstTouch() 
+    {
+        SetState(PlayerState.Casual);
+        this._playerAnimator.SetTrigger(StartWalk_ANIMATION_ID);
+        UpdateState();
+    }
 
     public void ModifyWealth(int amount)
     {
-        _wealth += amount;
+        _wealthChecker.AddMoney(amount, MaxWealth, CurrentState);
         UpdateState();
-        OnWealthChanged?.Invoke(_wealth);
     }
 
 
     private void UpdateState()
     {
-        if (_wealth <= 0 && CurrentState != PlayerState.Death)
+        if (_wealthChecker.Wealth <= 0 && CurrentState != PlayerState.Death)
         {
             SetState(PlayerState.Death);
         }
-        if (_wealth <= 15 && CurrentState != PlayerState.Poor)
+        if (_wealthChecker.Wealth <= 15 && CurrentState != PlayerState.Poor)
         {
             SetState(PlayerState.Poor);
         }
-        else if (_wealth > 15 && _wealth <= 59 && CurrentState != PlayerState.Casual)
+        else if (_wealthChecker.Wealth > 15 && _wealthChecker.Wealth <= 59 && CurrentState != PlayerState.Casual)
         {
             SetState(PlayerState.Casual);
         }
-        else if (_wealth >= 60 && _wealth <= 99 && CurrentState != PlayerState.Middle)
+        else if (_wealthChecker.Wealth >= 60 && _wealthChecker.Wealth <= 99 && CurrentState != PlayerState.Middle)
         {
             SetState(PlayerState.Middle);
         }
-        else if (_wealth >= 100 && _wealth <= 139 && CurrentState != PlayerState.Buisiness)
+        else if (_wealthChecker.Wealth >= 100 && _wealthChecker.Wealth <= 139 && CurrentState != PlayerState.Buisiness)
         {
             SetState(PlayerState.Buisiness);
         }
-        else if (_wealth >= 140 && CurrentState != PlayerState.Bling)
+        else if (_wealthChecker.Wealth >= MaxWealth && CurrentState != PlayerState.Bling)
         {
             SetState(PlayerState.Bling);
         }
 
-        _playerAnimator.SetFloat(WEALTH_ANIMATION_ID, _wealth);
+        _playerAnimator.SetFloat(WEALTH_ANIMATION_ID, _wealthChecker.Wealth);
     }
 
 
@@ -94,7 +90,14 @@ public class Player : MonoBehaviour
             case PlayerState.Death:
                 _splineFollow.enabled = false;
                 _swipeMovement.enabled = false;
+                _DeathUI.SetActive(true);
                 _OnLose?.Invoke();
+                break;
+
+            case PlayerState.Idle:
+                _splineFollow.enabled = false;
+                _swipeMovement.enabled = false;
+                _casualModel.SetActive(true);
                 break;
 
             case PlayerState.Poor:
@@ -102,6 +105,8 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.Casual:
+                _splineFollow.enabled = true;
+                _swipeMovement.enabled = true;
                 _casualModel.SetActive(true);
                 break;
 
@@ -126,3 +131,4 @@ public class Player : MonoBehaviour
         }
     }
 }
+

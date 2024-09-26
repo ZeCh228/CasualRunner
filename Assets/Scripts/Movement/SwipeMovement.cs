@@ -21,15 +21,10 @@ public class SwipeMovement : MonoBehaviour
     private Vector2 _previousTouchPosition;
     private bool _isTouching;
 
-
-
-
-
     private bool previousDirectionIsLeft = false;
     private Tween rotation;
 
   
-
 
     private void Start()
     {
@@ -38,6 +33,7 @@ public class SwipeMovement : MonoBehaviour
             _follower = GetComponent<SplineFollower>();
         }
     }
+
 
     private void Update()
     {

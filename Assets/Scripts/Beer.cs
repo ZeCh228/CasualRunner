@@ -9,6 +9,10 @@ public class Beer : Collectible
         PlayParticles();
     }
 
+    private void RotateObject()
+    {
+        transform.Rotate(Vector3.up * 50 * Time.deltaTime);
+    }
 
     protected override void PlayParticles()
     {

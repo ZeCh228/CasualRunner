@@ -4,7 +4,7 @@ using UnityEngine.Events;
 public class ObjectCollector : MonoBehaviour
 {
     [SerializeField] private Player _player;
-    [SerializeField] private UnityEvent<ICollectible> _onCollectItem;
+    [SerializeField] private UnityEvent<Collectible> _onCollectItem;
 
 
     private void Start()
@@ -15,13 +15,13 @@ public class ObjectCollector : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        ICollectible collectible = other.gameObject.GetComponent<ICollectible>();
+        Collectible collectible = other.gameObject.GetComponent<Collectible>();
 
         if (collectible != null)
         {
             _onCollectItem?.Invoke(collectible);
             collectible.ApplyEffect(_player);
-            Destroy(other.gameObject);
-        }
+            collectible.OnCollect();
+        } 
     }
 }

@@ -19,7 +19,7 @@ public class AudioPlayer : MonoBehaviour
 
 
 
-    public void OnCollectItem(ICollectible collectible)
+    public void OnCollectItem(Collectible collectible)
     {
         print($"Collectable type {collectible}");
         if (collectible is Beer) _vfxSource.PlayOneShot(_onBeerVFX);
